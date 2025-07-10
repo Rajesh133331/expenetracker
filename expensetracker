@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body{
+      box-sizing: border-box;
+    }
+    input,select{
+      width: 200px;
+      height: 30px;
+      margin-left: 10px;
+    }
+    #category{
+      width: 210px;
+      height: 35px;
+    }
+    #date{
+      width: 207px;
+      height: 30px;
+    }
+    #expenseadd-btn{
+      width: 100px;
+      height: 35px;
+      margin-left: 10px;
+    }
+    #expenseadd-btn:hover{
+      background-color: green;
+      color: white;
+      opacity: 0.7;
+    }
+    #expenselist{
+      margin-left: 1100px;
+      height: 50px;
+      width: 150px;
+      background-color: gainsboro;
+      text-align: center;
+    }
+    #expenselist:hover{
+      background-color: aliceblue;
+    }
+    #addexpensepage{
+      height: 50px;
+      width: 150px;
+      background-color: gainsboro;
+      text-align: center;
+      display: none;
+    }
+    table{
+      border-collapse: collapse;
+      width: 75%;
+    }
+    #table{
+      display: none;
+      margin-top: 20px;
+    }
+    td, th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Expense Tracker</h1>
+  <button type="button" id="expenselist" onclick="expenselist()">Expense List</button>
+  <button type="button" id="addexpensepage" onclick="addexpensepage()">Add Expense</button>
+  <div id="container">
+    <h3>Add Expenses</h3>
+      <input type="text" id="expensename" placeholder="Expense name" required autocomplete="off" autocapitalize="words">
+      <input type="number" id="amount" placeholder="Amount" required autocomplete="off">
+      <input type="text" id="info" placeholder="Add information" required autocomplete="off">
+      <select id="category">
+        <option selected disabled>select category</option>
+        <option>Food</option>
+        <option>Clothes</option>
+        <option>Fees</option>
+        <option>Emi payments</option>
+        <option>Debt Clear</option>
+        <option>Rent payment</option>
+        <option>Purchase</option>
+        <option>Travel</option>
+      </select>
+      <input type="date" id="date">
+      <button type="submit" id="expenseadd-btn" onclick="userinfo()">Add Expense</button>
+  </div>
+  <div id="table">
+      <table id="tabledata">
+        <tr>
+          <th>EXPENSE NAME</th>
+          <th>AMOUNT</th>
+          <th>INFORMATION</th>
+          <th>CATEGORY</th>
+          <th>DATE</th>
+          <th>UPDATE</th>
+        </tr>
+        <tbody id="tbody"></tbody>
+      </table>
+  </div>
+
+  <script>
+    function userinfo(){
+      let textvalue = document.getElementById("expensename").value;
+      let num = document.getElementById("amount").value;
+      let info = document.getElementById("info").value;
+      let category = document.getElementById("category").value;
+      let date = document.getElementById("date").value;
+
+      const userdetails = {
+        id: Date.now(),
+        usertext: textvalue,
+        useramount: num,
+        userinfo: info,
+        type: category,
+        userdate: date
+      };
+
+      let existing = JSON.parse(localStorage.getItem("localinfo")) || [];
+      existing.push(userdetails);
+      localStorage.setItem("localinfo", JSON.stringify(existing));
+
+      alert("expense added successfully");
+
+      document.getElementById("expensename").value = "";
+      document.getElementById("amount").value = "";
+      document.getElementById("info").value = "";
+      document.getElementById("category").selectedIndex = 0;
+      document.getElementById("date").value = "";
+    }
+
+    function expenselist() {
+      document.getElementById("container").style.display = "none";
+      document.getElementById("addexpensepage").style.display = "block";
+      document.getElementById("table").style.display = "block";
+
+      const tbody = document.getElementById("tbody");
+      tbody.innerHTML = "";
+
+      var existing = JSON.parse(localStorage.getItem("localinfo")) || [];
+
+      existing.forEach(member => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${member.usertext}</td>
+          <td>${member.useramount}</td>
+          <td>${member.userinfo}</td>
+          <td>${member.type}</td>
+          <td>${member.userdate}</td>
+          <td>
+            <button onclick="editMember(${member.id})">Edit</button>
+            <button onclick="deleteMember(${member.id})">Delete</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function addexpensepage() {
+      document.getElementById("container").style.display = "block";
+      document.getElementById("addexpensepage").style.display = "none";
+      document.getElementById("table").style.display = "none";
+    }
+
+    function deleteMember(id) {
+      let existing = JSON.parse(localStorage.getItem("localinfo")) || [];
+      existing = existing.filter(member => member.id !== id);
+      localStorage.setItem("localinfo", JSON.stringify(existing));
+      expenselist();
+    }
+
+    function editMember(id) {
+      let existing = JSON.parse(localStorage.getItem("localinfo")) || [];
+      let member = existing.find(member => member.id === id);
+
+      if (member) {
+        document.getElementById("container").style.display = "block";
+        document.getElementById("addexpensepage").style.display = "none";
+        document.getElementById("table").style.display = "none";
+
+        document.getElementById("expensename").value = member.usertext;
+        document.getElementById("amount").value = member.useramount;
+        document.getElementById("info").value = member.userinfo;
+        document.getElementById("category").value = member.type;
+        document.getElementById("date").value = member.userdate;
+
+        existing = existing.filter(m => m.id !== id);
+        localStorage.setItem("localinfo", JSON.stringify(existing));
+      }
+    }
+  </script>
+</body>
+</html>
